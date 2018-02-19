@@ -2,7 +2,7 @@ service: ${file(./config/service_name.yml):service}
 provider:
   name: aws
   runtime: nodejs6.10
-  stage: ${opt:stage, 'dev'}
+  stage: ${opt:stage, 'development'}
   environment:
     STAGE: ${self:provider.stage}
     SLS_DEBUG: "*"
@@ -12,10 +12,19 @@ provider:
       Action:
         - lambda:InvokeFunction
         - lambda:InvokeAsync
-      Resource: "*"
+      Resource: "*"       
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:PutItem
+        - dynamodb:GetItem
+        - dynamodb:deleteItem        
+      Resource: "arn:aws:dynamodb:*:${file(./credentials.json):environments.${self:provider.stage}.provider.aws.account}:table/${file(./parameters.json):environments.${self:provider.stage}.stripeTable}*"
 functions:
-  hello:
-    handler: handler.hello
+  authenticateUser:
+    handler: handler.authenticateUser
+  detachStripeAccount:
+    handler: handler.detachStripeAccount    
 package:
   exclude: 
     - 'test/**'

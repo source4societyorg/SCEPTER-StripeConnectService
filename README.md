@@ -1,39 +1,85 @@
-# SCEPTER-service-template
+# SCEPTER-StripeConnectService
 
 [![scepter-logo](http://res.cloudinary.com/source-4-society/image/upload/v1514622047/scepter_hzpcqt.png)](https://github.com/source4societyorg/SCEPTER-core)
 
 [![js-standard-style](https://cdn.rawgit.com/standard/standard/master/badge.svg)](http://standardjs.com)
 
-[![Build Status](https://travis-ci.org/source4societyorg/SCEPTER-service-template-nodejs.svg?branch=master)](https://travis-ci.org/source4societyorg/SCEPTER-service-template-nodejs)
+[![Build Status](https://travis-ci.org/source4societyorg/SCEPTER-StripeConnectService.svg?branch=master)](https://travis-ci.org/source4societyorg/SCEPTER-StripeConnectService)
 
-[![codecov](https://codecov.io/gh/source4societyorg/SCEPTER-service-template-nodejs/branch/master/graph/badge.svg)](https://codecov.io/gh/source4societyorg/SCEPTER-service-template-nodejs)
+[![codecov](https://codecov.io/gh/source4societyorg/SCEPTER-StripeConnectService/branch/master/graph/badge.svg)](https://codecov.io/gh/source4societyorg/SCEPTER-StripeConnectService)
 
 [![Serverless](http://public.serverless.com/badges/v1.svg)](http://serverless.com)
 
-This is the base template for building SCEPTER services. For more information, visit the main repository at [SCEPTER-Core](https://github.com/source4societyorg/SCEPTER-Core)
+## Installation
 
-Contributors welcome! Email accounts@source4society.org for questions about how to contribute.
+We recommend forking this repository.
 
-## System Requirements
+If you are using the [SCEPTER](https://www.github.com/source4societyorg/SCEPTER-core) framework you can install this service using the `service:add` scepter command [SCEPTER-command-service](https://github.com/source4societyorg/SCEPTER-command-service)
 
-Currently this project has been tested primarily with /bin/bash for Ubuntu 16.04 and powershell for Windows 10. We would like to eventually support a wider number of systems and contributions to this effect are welcome.
+This will clone the service into your services folder as a submodule.
 
-`git` at least version 1.9 should be installed, as well as `yarn`.
+Alternatively if you are running this as a standalone service, you can simply `git clone` this repository or it's fork, and setup the configuration files locally.
 
-See the [Serverless framework](https://serverless.com) provider specific limitations for which version of nodejs to install as different providers have different limitations. We recommend using [nvm](https://github.com/creationix/nvm) to switch between different versions of nodejs on your machine if you can.
+## Configuration
 
-It is also a good idea to familiarize yourself with [Git Submodules](https://git-scm.com/book/en/v2/Git-Tools-Submodules) as the framework relies heavily on them, although much effort has been made to simplify some of the submodule commands.
+A DynamoDB table must be created to hold Stripe Connect data. Incorporate the following to the appropriate location in your `credentials.json` file (substituting your stripe accounts values where appropriate):
 
-This project makes use of the [Serverless Framework](http://serverless.com)
+    {
+      "environments": {
+        "yourdevenvironment": {
+          "stripeSecret":"yourstripetestsecretkey"
+        },
+        "yourproductionenvironment": {
+          "stripeSecret":"yourstripelivesecretkey
+        }
+      } 
+    }
 
-If you are running the commands via powershell, be sure to install the windows-build-tools with the following command:
+Also add the following into your `parameters.json` file:
 
-    npm install --global --production windows-build-tools
+    {
+      "stripeOAuthApi":"https://connect.stripe.com/oauth/token"
+      "environments": {
+        "yourenvironment": {
+          "stripeTable": "yourdynamodbtablename"
+        }
+    }
 
-## Usage
+## Deployment
 
-This repository was designed to be used with the SCEPTER framework. Once you have a SCEPTER project setup and initialized, run the 
+See [Serverless.com](https://www.serverles.com) and [SCEPTER-command-service](https://github.com/source4societyorg/SCEPTER-command-service) for information on how to deploy services to various cloud providers without having to modify configuration files. 
 
-  node bin/scepter service:create
+## Example
 
-Command to build a new service.
+### authenticateUser
+
+Use this function to get stripe account data back from an OAuth code. See [Stripe Connect OAuth Reference](https://stripe.com/docs/connect/oauth-reference) to understand how the workflow works. You will need to post a payload containing the code received from the OAuth redirect similar to the following:
+
+    {
+      "code": "ac_yourcodehere"
+    }
+
+The service will record the resulting stripe account data into the stripe table if successful and return a response similar to the following (so that you can associate it with your users account),
+
+    {
+      "status": true,
+      "result": {
+        "stripe_user_id": "acct_someuserid",
+        "stripe_publishable_key": "pk_environment_somekey"
+      } 
+    }
+
+### detachStripeAccount
+
+This will delete the record that matched the passed in stripe_user_id from the stripe table. This should not be made accessible via the gateway, rather it should be called directly from another service that has already authenticated the user so that permissions can be validated. The payload is as follows:
+
+    {
+      "stripe_user_id": "yourstripeuserid"
+    }
+    
+
+## Tests
+
+To run tests and eslint, run `yarn test`.
+
+Before running tests, you need to be sure that you have a `test` environment credential configuration set created. These are provided by default in the test folder and are automaticaly referenced by the test library,

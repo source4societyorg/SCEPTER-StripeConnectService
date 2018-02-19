@@ -1,9 +1,9 @@
 {
-  "name": "@source4society/SCEPTER-service-template",
-  "version": "1.2.0",
-  "description": "Base template used for creating services. Add '@source4society/scepter-dynamodb-lib': '^0.0.16' for DynamoDB support",
+  "name": "@source4society/SCEPTER-StripeConnectService",
+  "version": "1.0.0",
+  "description": "Functions for linking Stripe Connect accounts",
   "main": "handler.js",
-  "repository": "git@github.com:source4societyorg/SCEPTER-service-template",
+  "repository": "git@github.com:source4societyorg/SCEPTER-StripeConnectService",
   "author": "Source4Society.Org",
   "license": "AGPL-3.0",
   "private": false,
@@ -12,10 +12,13 @@
     "sls": "sls"
   },
   "dependencies": {
+    "@source4society/scepter-dynamodb-lib": "^0.0.16",
     "@source4society/scepter-handlerutilities-lib": "^1.1.1",
-    "@source4society/scepter-utility-lib": "^0.0.26",
+    "@source4society/scepter-service-utility-lib": "^1.0.1",
+    "@source4society/scepter-utility-lib": "^1.0.0",
     "aws-sdk": "^2.149.0",
-    "immutable": "^3.8.2"
+    "immutable": "^3.8.2",
+    "request": "^2.83.0"
   },
   "devDependencies": {
     "docco": "^0.7.0",

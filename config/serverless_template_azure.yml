@@ -8,8 +8,14 @@ plugins:
   - serverless-azure-functions
 
 functions:
-  hello:
-    handler: handler.hello
+  authenticateUser:
+    handler: handler.authenticateUser
+    events:
+      - http: true,
+        #x-azure-settings: #Uncommenting this will remove the need for the api key to be passed in the query string via ?code (see portal to access api key)
+          #authLevel : anonymous 
+  detachStripeAccount:
+    handler: handler.detachStripeAccount
     events:
       - http: true,
         #x-azure-settings: #Uncommenting this will remove the need for the api key to be passed in the query string via ?code (see portal to access api key)

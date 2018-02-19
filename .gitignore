@@ -12,3 +12,4 @@ parameters.json
 serverless.yml
 #ignored for compatibility with powershell and bash
 yarn.lock
+/test/testdata
